@@ -39,6 +39,7 @@ tic;
 for tt = 1:num
     str=['正在放大第', num2str(tt) ,'张图 ... ... \n']; fprintf(str)
     
+    %% get LR for the input HR image, and then upscaling
     test_img = imread(fullfile(test_img_path, test_dir(tt).name));
 %     test_img = imread('Data/Testing/lenna.bmp');
     if size(test_img, 3) == 3
@@ -52,7 +53,7 @@ for tt = 1:num
     test_lr_cb = test_lr_ycbcr(:, :, 2);
     test_lr_cr = test_lr_ycbcr(:, :, 3);
     
-    %仅有亮度分量使用SI方法
+    % Only the brightness component used for the SI method.
     lrow = size(test_lr, 1);  lcol = size(test_lr, 2);
     radius = (patch_size-1)/2;                %radius（半径） of LR patch 
     
@@ -76,9 +77,9 @@ for tt = 1:num
             
         end
     end
-    
+ 
+    %% Composite   the brightness component for HR image 
     str=['正在合成第', num2str(tt) , '张放大图像 ... ... \n'];  fprintf(str)
-    
     
     % ------ generate the HR image -------
     generate_hr_size = [2*(size(test_lr,1)-2) , 2*(size(test_lr,2)-2) ]; %放大两倍
@@ -92,28 +93,29 @@ for tt = 1:num
         end
     end
     
-    generate_hr_cb = imresize(test_lr_cb, upscale, 'bicubic');
-    generate_hr_cr = imresize(test_lr_cr, upscale, 'bicubic');
-    generate_hr_cb = generate_hr_cb(1+upscale:size(generate_hr_cb,1)-upscale,1+upscale:size(generate_hr_cb,2)-upscale);
-    generate_hr_cr = generate_hr_cr(1+upscale:size(generate_hr_cr,1)-upscale,1+upscale:size(generate_hr_cr,2)-upscale);
+    %%  display
+%     generate_hr_cb = imresize(test_lr_cb, upscale, 'bicubic');
+%     generate_hr_cr = imresize(test_lr_cr, upscale, 'bicubic');
+%     generate_hr_cb = generate_hr_cb(1+upscale:size(generate_hr_cb,1)-upscale,1+upscale:size(generate_hr_cb,2)-upscale);
+%     generate_hr_cr = generate_hr_cr(1+upscale:size(generate_hr_cr,1)-upscale,1+upscale:size(generate_hr_cr,2)-upscale);
+%     
+%     
+%     generate_hr_ycbcr = zeros([size(generate_hr_img,1), size(generate_hr_img,2), 3]);
+%     generate_hr_ycbcr(:, :, 1) = generate_hr_img;
+%     generate_hr_ycbcr(:, :, 2) = generate_hr_cb;
+%     generate_hr_ycbcr(:, :, 3) = generate_hr_cr;
+%     generate_hr = ycbcr2rgb(uint8(generate_hr_ycbcr));
+%     
+%     if tt>1
+%         close(1,2,3);
+%     end
+%     figure(1); imshow(test_img);axis off;title('input hr');
+%     figure(2); imshow(ycbcr2rgb(test_lr_ycbcr));axis off;title('input lr');
+%     figure(3); imshow(generate_hr);axis off;title('output hr');
     
     
-    generate_hr_ycbcr = zeros([size(generate_hr_img,1), size(generate_hr_img,2), 3]);
-    generate_hr_ycbcr(:, :, 1) = generate_hr_img;
-    generate_hr_ycbcr(:, :, 2) = generate_hr_cb;
-    generate_hr_ycbcr(:, :, 3) = generate_hr_cr;
-    generate_hr = ycbcr2rgb(uint8(generate_hr_ycbcr));
     
-    if tt>1
-        close(1,2,3);
-    end
-    figure(1); imshow(test_img);axis off;title('input hr');
-    figure(2); imshow(ycbcr2rgb(test_lr_ycbcr));axis off;title('input lr');
-    figure(3); imshow(generate_hr);axis off;title('output hr');
-    
-    
-    
-%%% ------ compute the PSNR and SSIM  between output HR and input HR ------
+%% ------ compute the PSNR and SSIM  between output HR and input HR ------
 
     mpsnr = psnr1(test_hr_ycbcr(:,:,1) ,generate_hr_img);
     fprintf('    PSNR=%f   \n',mpsnr)
