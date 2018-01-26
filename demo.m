@@ -42,6 +42,7 @@ for tt = 1:num
     %% get LR for the input HR image, and then upscaling
     test_img = imread(fullfile(test_img_path, test_dir(tt).name));
 %     test_img = imread('Data/Testing/lenna.bmp');
+    
     if size(test_img, 3) == 3
         test_hr_ycbcr = rgb2ycbcr(test_img);
     else
@@ -94,6 +95,7 @@ for tt = 1:num
     end
     
     %%  display
+    
 %     generate_hr_cb = imresize(test_lr_cb, upscale, 'bicubic');
 %     generate_hr_cr = imresize(test_lr_cr, upscale, 'bicubic');
 %     generate_hr_cb = generate_hr_cb(1+upscale:size(generate_hr_cb,1)-upscale,1+upscale:size(generate_hr_cb,2)-upscale);
@@ -112,6 +114,11 @@ for tt = 1:num
 %     figure(1); imshow(test_img);axis off;title('input hr');
 %     figure(2); imshow(ycbcr2rgb(test_lr_ycbcr));axis off;title('input lr');
 %     figure(3); imshow(generate_hr);axis off;title('output hr');
+% %         figure
+% %         subplot(2,2,1); imshow(test_img);axis off;title('input hr');
+% %         subplot(2,2,3); imshow(ycbcr2rgb(test_lr_ycbcr));axis off;title('input lr');
+% %         subplot(2,2,2); imshow(generate_hr);axis off;title('output hr');
+
     
     
     

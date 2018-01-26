@@ -43,9 +43,9 @@ function [patch_class] = patchclass(patch ,thershold ,patch_size)
             
             patch_class = 0;  %EO class of the  current patch 
             for m=1:size(class_index,2)
-                patch_class = patch_class + class_index(m)*(5^(m-1));        %相当于一个五进制数
+                patch_class = patch_class + class_index(m)*(5^(m-1));     %equivalent to a quinary number（五进制数）.
             end
             if  patch_class == 0
-                patch_class = 625;  %总共5^4=256个EO类，从1-256
+                patch_class = 625;  %total 5^4=256 EOclass, from 1 to 256
             end
 end

@@ -13,7 +13,7 @@ lr_patch = zeros(9,9,625);
 img_num = length(img_dir); %img_num检测到的文件个数，train_img_num是要求检测的文件个数
 img_num = min(img_num, train_img_num);
 
-hint_w=waitbar(0,'正在训练图片...');pause(0.5)
+hint_w=waitbar(0,'正在训练图片...');pause(0.2)
 patch_number = 0;  %total number of patches
 tic;
 
@@ -34,8 +34,8 @@ for ii = 1:img_num
 %{     
     imresize改变图像大小  imfilter滤波处理函数 fspecial产生滤波算子
     imrersize函数使用由参数method指定的插值运算来改变图像的大小。
-    g = imfilter(f, w, filtering_mode, boundary_options, size_options) ;   
-    B = imresize(A,m,method)   
+    B = imresize(A,m,method)
+    g = imfilter(f, w, filtering_mode, boundary_options, size_options) ;     
 %}
     
     lrow = size(lr, 1); lcol = size(lr, 2);     %get the size of LR patch
@@ -55,7 +55,7 @@ for ii = 1:img_num
            %patch of hr
             patch2 = hr(2*i-1:2*i,2*j-1:2*j);
             patch2 = double(patch2);
-            patch2_vector = reshape(patch2',1,4); %2倍放大系数
+            patch2_vector = reshape(patch2',1,4);  % upscaling factor is 2
             patch2_vector = double(patch2_vector);
 % %             hr_patch = [hr_patch;patch2_vector];
 
@@ -67,8 +67,8 @@ for ii = 1:img_num
             % but Intermediate calculation result for compute mapping
             Q = (patch2_vector')* patch1_vector;        %xc*yc'
             V = (patch1_vector')* patch1_vector;        %yc*yc'
-            hr_patch(:,:,temp_class) =  hr_patch(:,:,temp_class) + Q;
-            lr_patch(:,:,temp_class) =  lr_patch(:,:,temp_class) + V;
+            hr_patch(:,:,temp_class) =  hr_patch(:,:,temp_class) + Q;   %sum for xc*yc'
+            lr_patch(:,:,temp_class) =  lr_patch(:,:,temp_class) + V;      %sum for yc*yc'
             
             patch_number = patch_number+1;
             
@@ -80,7 +80,7 @@ end
 
 %%
 toc;
-waitbar(100,hint_w,'训练已完成，窗口即将关闭..');pause(0.5)
+waitbar(100,hint_w,'训练已完成，窗口即将关闭..');pause(0.3)
 close(hint_w);
 
 % patch_path = ['Training/LR-HR patch ' num2str(patch_size) '-' num2str(patch_number) '.mat'];

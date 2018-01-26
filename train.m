@@ -4,25 +4,24 @@ function [class_mapping] = train(train_img_num,patch_size,upscale,lambda,theta)
 
 % clear all;
 % close all;
+
 train_img_path = 'Data/Training';
 
-
-if (nargin ==0)  % 参数个数为0, 只训练一张图像
+if (nargin ==0)  % 0 args, The default number of the training images is 1
     patch_size = 3;
     upscale = 2;
     lambda = 1;          %penalty factor
     theta = 15;            %thershold for gradient ,use in patchclass in ptachcut
     train_img_num = 1;
-elseif (nargin ==1) % 参数个数为1，只设置训练图形数量
+elseif (nargin ==1) % 1 args，number of the training images should be given
     patch_size = 3;
     upscale = 2;
     lambda = 1;        
     theta = 15;      
-elseif(nargin ~=5) %参数个数只能取0，1，5
+elseif(nargin ~=5) % The number of parameters can only be 0,1,5.
     class_mapping=zeros(625,36);
     return
 end
-
 
 
 % generate LR images and generate LR-HR patch pair, and
