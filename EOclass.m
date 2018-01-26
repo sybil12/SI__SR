@@ -1,5 +1,5 @@
 %compute the EO class for the  patch
-function [patch_class] = patchclass(patch ,thershold ,patch_size)
+function [patch_class] = EOclass(patch ,thershold ,patch_size)
             class_index = zeros( 1, (patch_size-1)^2 );  %store EO class for every subpatch
             for iii = 1:patch_size-1
                 for jjj = 1:patch_size-1

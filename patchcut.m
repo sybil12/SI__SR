@@ -60,7 +60,7 @@ for ii = 1:img_num
 % %             hr_patch = [hr_patch;patch2_vector];
 
             %  get the EO class of the  current patch 
-            temp_class = patchclass( patch1, theta, patch_size);
+            temp_class = EOclass( patch1, theta, patch_size);
 
             
             % store the current patch as its EO class, not the original value 
