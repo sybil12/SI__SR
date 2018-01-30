@@ -1,5 +1,5 @@
-% Super-Interpolation with edge-orientation-based mapping kernels
-%           2018.01.25 BY sisiyin changed on  Duan Peiqi, 2017
+% Single Image Super-Resolution. use LPC or EO based method
+%           2018.01.30 BY sisiyin changed on  Duan Peiqi, 2017
 
 
 
@@ -8,17 +8,15 @@
 % train_img_num=20;
 % [class_mapping] = train(train_img_num);
 
-
-%%   upscaling
-% ------- input test images -------- 
+%% ------- input test images -------- 
 test_img_path = 'Data/Testing';
 test_num=5;
 % type={'*.jpg'; '*.bmp'}; %jpg type is too big to show
 type='*.bmp';
 imgs=fullfile(test_img_path,type);
 if iscell(type)
-    test_dir = dir(char(imgs(1)));
-    for s= 2:length(imgs)
+    test_dir = [];
+    for s= 1:length(imgs)
         test_dir = [test_dir; dir(char(imgs(s)))];
     end
 else
@@ -27,13 +25,15 @@ end
 num = min(test_num,length(test_dir)); %image nums to test
 
 
-
+% method = 'EO';
+method =  'LPC';
+%%   upscaling
 % ------- get the LR images, and reconstruct a HR one -------- 
 patch_size = 3;
 upscale = 2;
-theta = 15;%thershold for gradient
-lambda = 1;%penalty factor
+theta = 15;   % EO class , thershold for gradient
 
+arg = [2,2];    %Nc Nd
 
 tic;
 for tt = 1:num
@@ -70,7 +70,12 @@ for tt = 1:num
             test_patch_vector = test_patch(:)';   %change to row vector(1*9)
             test_patch_vector = double(test_patch_vector);
            
-            test_patch_class= patchclass( test_patch, theta, patch_size);
+            if strcmp(method,'LPC')
+	            test_patch_class= LPC_class( test_patch, arg, patch_size);
+            elseif strcmp(method,'EO')
+                 test_patch_class= EOclass( test_patch, theta, patch_size);
+            end
+
             m = class_mapping(test_patch_class,:);
             m = reshape(m,patch_size^2,upscale^2);
             temp_hr_patch = double(m')*double(test_patch_vector'); %get LR patches
@@ -79,7 +84,7 @@ for tt = 1:num
         end
     end
  
-    %% Composite   the brightness component for HR image 
+    %% Composite the brightness component for HR image 
     str=['正在合成第', num2str(tt) , '张放大图像 ... ... \n'];  fprintf(str)
     
     % ------ generate the HR image -------
@@ -96,24 +101,24 @@ for tt = 1:num
     
     %%  display
     
-%     generate_hr_cb = imresize(test_lr_cb, upscale, 'bicubic');
-%     generate_hr_cr = imresize(test_lr_cr, upscale, 'bicubic');
-%     generate_hr_cb = generate_hr_cb(1+upscale:size(generate_hr_cb,1)-upscale,1+upscale:size(generate_hr_cb,2)-upscale);
-%     generate_hr_cr = generate_hr_cr(1+upscale:size(generate_hr_cr,1)-upscale,1+upscale:size(generate_hr_cr,2)-upscale);
-%     
-%     
-%     generate_hr_ycbcr = zeros([size(generate_hr_img,1), size(generate_hr_img,2), 3]);
-%     generate_hr_ycbcr(:, :, 1) = generate_hr_img;
-%     generate_hr_ycbcr(:, :, 2) = generate_hr_cb;
-%     generate_hr_ycbcr(:, :, 3) = generate_hr_cr;
-%     generate_hr = ycbcr2rgb(uint8(generate_hr_ycbcr));
-%     
-%     if tt>1
-%         close(1,2,3);
-%     end
-%     figure(1); imshow(test_img);axis off;title('input hr');
-%     figure(2); imshow(ycbcr2rgb(test_lr_ycbcr));axis off;title('input lr');
-%     figure(3); imshow(generate_hr);axis off;title('output hr');
+    generate_hr_cb = imresize(test_lr_cb, upscale, 'bicubic');
+    generate_hr_cr = imresize(test_lr_cr, upscale, 'bicubic');
+    generate_hr_cb = generate_hr_cb(1+upscale:size(generate_hr_cb,1)-upscale,1+upscale:size(generate_hr_cb,2)-upscale);
+    generate_hr_cr = generate_hr_cr(1+upscale:size(generate_hr_cr,1)-upscale,1+upscale:size(generate_hr_cr,2)-upscale);
+    
+    
+    generate_hr_ycbcr = zeros([size(generate_hr_img,1), size(generate_hr_img,2), 3]);
+    generate_hr_ycbcr(:, :, 1) = generate_hr_img;
+    generate_hr_ycbcr(:, :, 2) = generate_hr_cb;
+    generate_hr_ycbcr(:, :, 3) = generate_hr_cr;
+    generate_hr = ycbcr2rgb(uint8(generate_hr_ycbcr));
+    
+    if tt>1
+        close(1,2,3);
+    end
+    figure(1); imshow(test_img);axis off;title('input hr');
+    figure(2); imshow(ycbcr2rgb(test_lr_ycbcr));axis off;title('input lr');
+    figure(3); imshow(generate_hr);axis off;title('output hr');
 % %         figure
 % %         subplot(2,2,1); imshow(test_img);axis off;title('input hr');
 % %         subplot(2,2,3); imshow(ycbcr2rgb(test_lr_ycbcr));axis off;title('input lr');

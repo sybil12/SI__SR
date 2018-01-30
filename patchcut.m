@@ -1,14 +1,28 @@
 % generate LR images and generate LR-HR patch pair, and
-% compute EO class of the LR-HR patch pair
+% compute class for the LR-HR patch pair
+% method='EO'     arg=thershold
+% method='LPC'    arg=[Nc, Nd]
 
-function [hr_patch,lr_patch] = patchcut(img_path, type, patch_size, upscale,theta,train_img_num)
+function [hr_patch,lr_patch] = patchcut(img_path, type, train_img_num,  patch_size, upscale, method, arg)
 %%  读取img_path中的所有格式为type的文件；
 img_dir = dir(fullfile(img_path,type));  %列出img_path中的所有格式为type的文件；
 %dir批量读取文件   %fullfile()利用文件各部分信息创建并合成完整文件名
 
 %      存的不是patch原来的值，而是计算mapping的中间值 xc*yc' 和 yc*yc'
-hr_patch = zeros(4,9,625);  %the 3rd dim presents EO class
-lr_patch = zeros(9,9,625);  
+if strcmp(method,'LPC')
+    hr_patch = zeros(4,9,4096); %12 bits LPE
+    lr_patch = zeros(9,9,4096);
+    if length(arg)~=2
+        error('arg should have 2 elements for LPC class: Nc Nd!! \n')
+    end
+elseif strcmp(method,'EO')
+    hr_patch = zeros(4,9,625);  %the 3rd dim presents EO class
+    lr_patch = zeros(9,9,625);
+    if length(arg)~=1
+        error('arg should have 1 elements for EO class: thershold!! \n')
+    end
+end
+
 
 img_num = length(img_dir); %img_num检测到的文件个数，train_img_num是要求检测的文件个数
 img_num = min(img_num, train_img_num);
@@ -50,17 +64,19 @@ for ii = 1:img_num
             patch1 = double(patch1');
             patch1_vector = patch1(:)';   %change to row vector(1*9)
             patch1_vector = double(patch1_vector);
-% %             lr_patch = [lr_patch;patch1_vector];
             
            %patch of hr
             patch2 = hr(2*i-1:2*i,2*j-1:2*j);
             patch2 = double(patch2);
             patch2_vector = reshape(patch2',1,4);  % upscaling factor is 2
             patch2_vector = double(patch2_vector);
-% %             hr_patch = [hr_patch;patch2_vector];
 
-            %  get the EO class of the  current patch 
-            temp_class = EOclass( patch1, theta, patch_size);
+            %  get the class of the  current patch 
+            if strcmp(method,'LPC')
+                temp_class = LPC_class( patch1,arg, patch_size); %arg=[Nc, Nd]
+            elseif strcmp(method,'EO')
+                temp_class = EOclass( patch1, arg, patch_size); %arg=thershold
+            end
 
             
             % store the current patch as its EO class, not the original value 
