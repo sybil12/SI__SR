@@ -1,4 +1,4 @@
-%%¡¡learning the mapping matrix for each class
+%  learning the mapping matrix for each class
 %  method: classification method
 %  regular: regularization method
 function [class_mapping] = mapping(lr_patch ,hr_patch ,patch_size,upscale, method, regular, lambda)

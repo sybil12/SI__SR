@@ -1,4 +1,4 @@
-%compute the EO class for the  patch
+%compute the LPE code for the  patch
 function [patch_class] = LPC_class(patch , arg, patch_size)
             Nc=arg(1); Nd=arg(2);
             
